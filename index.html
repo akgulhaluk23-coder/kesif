@@ -132,7 +132,7 @@
           { type: "text", text: kullaniciMesaji }
         ];
 
-        const response = await fetch("/api/claude", {
+        const response = await fetch("/.netlify/functions/claude-proxy", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"

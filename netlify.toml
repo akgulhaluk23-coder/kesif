@@ -4,6 +4,9 @@
 [functions]
   node_bundler = "nft"
 
+[functions."claude-proxy"]
+  node_bundler = "nft"
+
 [[redirects]]
   from = "/api/claude"
   to = "/.netlify/functions/claude-proxy"

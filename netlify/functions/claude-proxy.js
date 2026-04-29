@@ -1,11 +1,13 @@
 exports.handler = async function(event, context) {
+  context.callbackWaitsForEmptyEventLoop = false;
+  
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
   try {
     const body = JSON.parse(event.body);
-    console.log("İstek alındı, model:", body.model);
+    console.log("İstek alındı");
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -18,10 +20,7 @@ exports.handler = async function(event, context) {
     });
 
     const data = await response.json();
-    console.log("Anthropic yanıtı status:", response.status);
-    if (!response.ok) {
-      console.log("Anthropic hata detayı:", JSON.stringify(data));
-    }
+    console.log("Status:", response.status);
 
     return {
       statusCode: response.status,
@@ -32,7 +31,7 @@ exports.handler = async function(event, context) {
       body: JSON.stringify(data)
     };
   } catch(e) {
-    console.log("Genel hata:", e.message);
+    console.log("Hata:", e.message);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: e.message })

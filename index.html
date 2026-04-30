@@ -127,41 +127,19 @@
       }, 100);
       
       try {
-        const fotografIcerikleri = evraklar.map(evrak => ({
-          type: "image",
-          source: {
-            type: "base64",
-            media_type: "image/jpeg",
-            data: evrak.base64.includes(",") ? evrak.base64.split(",")[1] : evrak.base64
-          }
-        }));
-
-        const ilaveBilgi = mod === "ilave" && not.trim()
-          ? "\n\nBilirkişi tarafından eklenen ilave bilgiler:\n" + not.trim()
-          : "";
-
-        const kullaniciMesaji = "Keşif Bilgileri:\n- Mahkeme: " + mahkemeTam(kesif) +
-          "\n- Tarih: " + formatDate(kesif.tarih) +
-          "\n- Saat: " + kesif.saat +
-          "\n- Dosya No: " + (kesif.dosya_no || "Belirtilmemiş") +
-          ilaveBilgi +
-          "\n\nEkteki " + evraklar.length + " adet fotoğrafı inceleyerek bilirkişi raporu taslağını hazırla.";
-
-        const mesajIcerigi = [
-          ...fotografIcerikleri,
-          { type: "text", text: kullaniciMesaji }
-        ];
-
         const response = await fetch("/.netlify/functions/claude-proxy", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "claude-opus-4-5",
-            max_tokens: 4000,
-            system: "Sen deneyimli bir SPK lisanslı gayrimenkul değerleme uzmanısın. Sana sunulan fotoğraflar bir gayrimenkul keşfine ait belgeler ve/veya taşınmaz fotoğraflarıdır. Bu fotoğrafları inceleyerek Türk mahkemelerine sunulmak üzere profesyonel bir bilirkişi raporu taslağı hazırlayacaksın. Rapor şu bölümleri içermeli: 1. GÖREV VE KAPSAM, 2. İNCELEME KONUSU TAŞINMAZ BİLGİLERİ, 3. TAŞINMAZIN MEVCUT DURUMU, 4. PİYASA ANALİZİ VE DEĞERLEME YÖNTEMİ, 5. DEĞER TESPİTİ VE SONUÇ, 6. BİLİRKİŞİ KANAAT VE SONUCU. Raporu Türkçe, resmi ve hukuki dilde yaz. Fotoğraflardan net bilgi çıkaramazsan ilgili bölümü 'yerinde inceleme ve belge tetkikine göre doldurulacaktır' şeklinde bırak.",
-            messages: [{ role: "user", content: mesajIcerigi }]
+            kesif: {
+              mahkeme: mahkemeTam(kesif),
+              tarih: formatDate(kesif.tarih),
+              saat: kesif.saat,
+              dosya_no: kesif.dosya_no || "",
+              evrakSayisi: evraklar.length
+            },
+            not: not || "",
+            mod: mod
           })
         });
 
